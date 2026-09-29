@@ -4,9 +4,19 @@ Skills for my own workflows, packaged as plugins for Claude Code, VS Code and Co
 
 ## What's Included
 
-| Plugin     | What it does                                                                                                                                                      |
-|------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `renovate` | Work through open Renovate PRs on GitHub: merge the safe ones one at a time, fix red builds within a small non-breaking budget, and report what needs a decision. |
+| Plugin     | What it does                                |
+|------------|---------------------------------------------|
+| `renovate` | Skills for working with Renovate on GitHub. |
+
+### renovate
+
+- `/renovate-sweep` works through all open Renovate PRs of a repo: it merges green updates one at a time, reviews majors against their
+  changelogs, fixes red builds within a small non-breaking budget, and reports what needs a decision. It runs only when you invoke it.
+- `renovate-fix` analyzes one Renovate PR and prototypes a fix in a separate worktree, without writing to GitHub.
+
+Both need bash (Git Bash on Windows), `git`, `jq`, and `gh` logged in to the repo's host. They discover the repo's build commands and conventions.
+A repo corrects what discovery gets wrong in a `## Renovate` section of its `AGENTS.md` or `CLAUDE.md`, e.g. which dependencies ship to consumers
+or where fixes may go.
 
 ## Install
 

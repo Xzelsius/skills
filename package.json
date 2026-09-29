@@ -1,0 +1,19 @@
+{
+  "name": "xzelsius-skills",
+  "private": true,
+  "description": "Linters and checks for the xzelsius-skills plugin marketplace",
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "check": "node scripts/check.mjs",
+    "fix": "node scripts/check.mjs --fix"
+  },
+  "devDependencies": {
+    "@vscode-shellcheck/shellcheck-wasm": "0.1.1",
+    "@wasm-fmt/shfmt": "0.2.7",
+    "editorconfig": "3.0.2",
+    "markdownlint-cli2": "0.23.3"
+  }
+}

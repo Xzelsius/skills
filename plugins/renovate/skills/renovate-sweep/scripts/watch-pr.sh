@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 # Watches a PR until its checks have finished or it is merged, or its head changes.
 #
-# Usage: watch-pr.sh [--until checks|merged] [--timeout <s>=540] [--interval <s>=15] <pr> <expected-head-sha>
+# Usage: watch-pr.sh [--until checks|merged] [--timeout <s>=540] <pr> <expected-head-sha>
 #
 # --until checks (default) returns once the checks have finished; --until merged waits for the merge, and also
 # returns when a check fails, because the PR then won't merge.
-# Exit 0: merged, or done waiting (prints ci, the failed checks, review, merge state and auto-merge).
+# Exit 0: merged (prints MERGED), or done waiting (prints ci, stability, failed, review, merge and autoMerge).
 # Exit 1: timeout; call again to keep waiting. Exit 2: the head changed (someone pushed, e.g. Renovate raced a
 # push) or the PR was closed.
 # The default timeout stays below the 10-minute cap that agent shells put on a single command.
@@ -14,7 +14,7 @@ set -euo pipefail
 # shellcheck source=lib.sh
 source "$(dirname "$0")/lib.sh"
 
-mode=checks timeout=540 interval=15 args=()
+mode=checks timeout=540 args=()
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --until)
@@ -23,10 +23,6 @@ while [ "$#" -gt 0 ]; do
       ;;
     --timeout)
       timeout="$2"
-      shift 2
-      ;;
-    --interval)
-      interval="$2"
       shift 2
       ;;
     *)
@@ -43,9 +39,15 @@ pr="${args[0]}" expected="${args[1]}"
 deadline=$(($(date +%s) + timeout))
 
 while :; do
-  json="$(gh pr view "$pr" --json state,headRefOid,reviewDecision,mergeStateStatus,autoMergeRequest)"
-  state="$(jq -r .state <<<"$json")"
-  head="$(jq -r .headRefOid <<<"$json")"
+  info="$(gh pr view "$pr" --json state,headRefOid,reviewDecision,mergeStateStatus,autoMergeRequest \
+    --jq '.state, .headRefOid, (.reviewDecision // ""), .mergeStateStatus, (if .autoMergeRequest then "yes" else "no" end)')"
+  {
+    read -r state
+    read -r head
+    read -r review
+    read -r merge
+    read -r auto
+  } <<<"$info"
 
   if [ "$state" = "MERGED" ]; then
     echo "MERGED"
@@ -64,15 +66,15 @@ while :; do
   esac
 
   summary="$(ci_summary "$pr")"
-  ci="$(jq -r .ci <<<"$summary")"
+  ci="${summary#ci=}"
+  ci="${ci%% *}"
   if [ "$ci" = "fail" ] || { [ "$ci" != "pending" ] && [ "$mode" = "checks" ]; }; then
-    jq -r --argjson s "$summary" '"ci=\($s.ci) failed=\($s.failed | join(",")) review=\(.reviewDecision)"
-      + " merge=\(.mergeStateStatus) autoMerge=\(.autoMergeRequest != null)"' <<<"$json"
+    echo "$summary review=$review merge=$merge autoMerge=$auto"
     exit 0
   fi
   if [ "$(date +%s)" -ge "$deadline" ]; then
-    echo "timeout: ci=$ci pending=$(jq -r '.pending | join(",")' <<<"$summary") merge=$(jq -r .mergeStateStatus <<<"$json")" >&2
+    echo "timeout: ci=$ci merge=$merge" >&2
     exit 1
   fi
-  sleep "$interval"
+  sleep 15
 done

@@ -3,12 +3,6 @@
 Read this for PRs whose `ecosystems` include `github-actions`: `uses:` references in `.github/workflows/` and in
 `action.yml` files, and tool versions that Renovate updates inside workflows, e.g. `node-version`.
 
-## What ships to consumers
-
-Workflows don't ship, so action updates aren't consumer-facing. The exception is a repo that publishes an action:
-the `uses:` references in its own `action.yml` run in every consumer's workflow. A repo like that says so in its
-`## Renovate` section.
-
 A tool version inside a workflow, such as `node-version` or `dotnet-version`, changes the runtime that CI builds and
 tests on. Compare it with what the repo declares elsewhere (`engines`, `.nvmrc`, `global.json`). An update that makes
 CI test a runtime the project doesn't support, or stop testing one it does, is the user's decision.
@@ -16,8 +10,9 @@ CI test a runtime the project doesn't support, or stop testing one it does, is t
 ## Where the fix may go
 
 This is the one case where the guardrails allow CI workflow changes: when the PR updates an action and the fix
-belongs in a workflow that uses it. Find every use first:
-`grep -rn 'uses: <owner>/<action>@' .github/ --include='*.yml' --include='*.yaml'`, plus any `action.yml` in the repo.
+belongs in a workflow that uses it. Find every use first, in `.github/` and in any `action.yml` in the repo.
+Workflows and local actions under `.github/actions/` don't ship, but an `action.yml` the repo publishes does: a fix
+there is the user's decision.
 
 Keep Renovate's pinning style: a digest with a version comment (`@<sha> # v4.2.0`) stays a digest.
 
@@ -31,7 +26,7 @@ After the action's GitHub releases and compare view:
 - the `runs.using` field of the same file: a Node runtime bump such as `node20` → `node24` needs a runner version
   that supports it. That matters for self-hosted runners and GitHub Enterprise Server.
 
-## Commands
+## Verification
 
 Workflows can't be run locally. Check the workflow change against the new `action.yml` (input names, required
 inputs, output names), and list "workflow run" in the verdict's `notVerified`. The PR's own CI run after the push is

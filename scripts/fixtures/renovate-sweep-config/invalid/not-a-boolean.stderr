@@ -1,0 +1,3 @@
+invalid config: scripts/fixtures/renovate-sweep-config/invalid/not-a-boolean.conf
+bad boolean config value 'maybe' for 'dependency.Newtonsoft.Json.consumerfacing'
+references/config.md of the renovate-sweep skill describes every key.

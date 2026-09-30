@@ -1,0 +1,4 @@
+invalid config: scripts/fixtures/renovate-sweep-config/invalid/unknown-key.conf
+sweep.budget: unknown key
+fix.budget: unknown key
+references/config.md of the renovate-sweep skill describes every key.

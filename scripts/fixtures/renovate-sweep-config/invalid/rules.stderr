@@ -1,0 +1,4 @@
+invalid config: scripts/fixtures/renovate-sweep-config/invalid/rules.conf
+dependency.consumerfacing: a rule needs a glob, as in [dependency "<glob>"]
+dependency.Microsoft Extensions.consumerfacing: a glob can't contain spaces
+references/config.md of the renovate-sweep skill describes every key.

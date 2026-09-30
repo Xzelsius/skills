@@ -3,45 +3,19 @@
 Read this for PRs whose `ecosystems` include `npm`: `package.json`, lockfiles, and Node version files such as
 `.nvmrc`.
 
-## What ships to consumers
-
-`renovate-prs.sh` marks a package as consumer-facing when a `package.json` that isn't `"private": true` lists it
-under `dependencies`, `peerDependencies` or `optionalDependencies`. `devDependencies` never ship. A site or app that
-isn't published to a registry is usually private, so its dependencies don't count.
-
-Discovery misses a bundled library whose `dependencies` end up in its build output. A repo like that says so in its
-`## Renovate` section.
-
-## Package manager
-
-Take it from the lockfile, and install exactly what the lockfile says:
-
-| Lockfile            | Install                                                                                 |
-|---------------------|-----------------------------------------------------------------------------------------|
-| `package-lock.json` | `npm ci`                                                                                |
-| `pnpm-lock.yaml`    | `pnpm install --frozen-lockfile`                                                        |
-| `yarn.lock`         | `yarn install --immutable` (Yarn 2 or later), `yarn install --frozen-lockfile` (Yarn 1) |
-
-A `packageManager` field in `package.json` pins the manager's version; use it through Corepack if the repo does. A
-repo with several `package.json` files may have one lockfile per folder; work in the folder the PR changes.
+Install exactly what the lockfile says: `npm ci`, `pnpm install --frozen-lockfile`, or `yarn install --immutable`
+(`--frozen-lockfile` on Yarn 1), with the manager version that a `packageManager` field pins. A repo with several
+`package.json` files may have one lockfile per folder; work in the folder the PR changes.
 
 ## Changelog sources
 
 After the upstream GitHub releases and compare view:
 
-- the versions and their dates: `npm view <package> time --json`
 - the upstream repo, if the release notes don't link it: `npm view <package> repository.url`
 - the published `package.json` of a version, for its `engines`, `peerDependencies` and `exports`:
   `npm view <package>@<version> engines peerDependencies exports --json`
 - `@types/*` packages come from DefinitelyTyped and have no changelog. Compare their declarations between the two
   versions instead: `npm pack @types/<name>@<version>` downloads the tarball.
-
-## Commands
-
-- Iterate: the install from the table above, then the scripts CI runs, e.g. `npm run build` and the test script
-  with the runner's filter (`npm test -- <pattern>`).
-- Full verification: every script the pull request workflow runs for that folder, e.g. lint, type check, build and
-  tests.
 
 ## Known fixes
 

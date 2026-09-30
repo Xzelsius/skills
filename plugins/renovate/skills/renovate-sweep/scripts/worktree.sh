@@ -1,14 +1,13 @@
 #!/usr/bin/env bash
 # Ephemeral worktrees for Renovate PRs, kept outside the repository so the main checkout stays untouched.
 #
-# Usage: worktree.sh [--root <dir>] add <pr> <branch>     create <root>/pr-<pr> on local branch renovate-sweep/pr-<pr>
-#        worktree.sh [--root <dir>] reset <pr> <branch>   discard everything in it and move it to the latest origin/<branch>
-#        worktree.sh [--root <dir>] remove <pr>           remove the worktree, its local branch and its saved files
-#        worktree.sh [--root <dir>] prune                 remove all worktrees whose PR is no longer open
-#        worktree.sh [--root <dir>] list
-#        worktree.sh [--root <dir>] root                  print the root
+# Usage: worktree.sh add <pr> <branch>     create <root>/pr-<pr> on local branch renovate-sweep/pr-<pr>
+#        worktree.sh reset <pr> <branch>   discard everything in it and move it to the latest origin/<branch>
+#        worktree.sh remove <pr>           remove the worktree, its local branch and its saved files
+#        worktree.sh prune                 remove all worktrees whose PR is no longer open
+#        worktree.sh root                  print the root
 #
-# Root: ${TMPDIR:-/tmp}/renovate-sweep/<owner>-<repo> unless --root is given. Run it from the main checkout.
+# Root: ${TMPDIR:-/tmp}/renovate-sweep/<owner>-<repo>. Run it from the main checkout.
 # Per-PR files live next to the worktree, so a reset doesn't lose them: pr-<pr>.patch (verified fix),
 # pr-<pr>.json (worker verdict) and pr-<pr>.pushed (head SHA of a fix the sweep pushed).
 
@@ -16,15 +15,8 @@ set -euo pipefail
 # shellcheck source=lib.sh
 source "$(dirname "$0")/lib.sh"
 
-root=""
-if [ "${1:-}" = "--root" ]; then
-  root="$2"
-  shift 2
-fi
-if [ -z "$root" ]; then
-  slug="$(repo_slug)"
-  root="${TMPDIR:-/tmp}/renovate-sweep/${slug//\//-}"
-fi
+slug="$(repo_slug)"
+root="${TMPDIR:-/tmp}/renovate-sweep/${slug//\//-}"
 # On Windows, print C:/... paths, which both Git Bash and native tools understand.
 if command -v cygpath >/dev/null; then root="$(cygpath -m "$root")"; fi
 
@@ -72,14 +64,11 @@ case "$cmd" in
     done
     git worktree prune
     ;;
-  list)
-    git worktree list | grep -F -- "$(basename "$root")/pr-" || true
-    ;;
   root)
     echo "$root"
     ;;
   *)
-    sed -n '2,13p' "$0"
+    sed -n '2,12p' "$0"
     exit 2
     ;;
 esac

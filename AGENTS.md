@@ -18,6 +18,7 @@ plugins/<plugin>/skills/<skill>/references/     detail the skill loads on demand
 package.json                                    the linters, installed by npm ci
 scripts/check.mjs                               repo checks, run by npm run check
 scripts/linters.mjs                             markdownlint, ShellCheck and shfmt, shared by the checks and the lint hook
+scripts/fixtures/<skill>-config/                valid and invalid configs that npm run check runs through a skill's config.sh
 .claude/hooks/setup.mjs                         SessionStart hook; runs npm ci when node_modules is missing or stale
 .claude/hooks/lint.mjs                          PostToolUse hook; lints every file Claude Code edits
 ```
@@ -56,8 +57,9 @@ license: MIT
   substitute it.
 
 Body sections, in this order: When to use and when not, Inputs, Workflow (numbered steps with checkpoints), Validation, Common pitfalls. Together
-they answer what outcome the skill produces, when an agent uses it, and how the agent validates success. Keep the body under 500 lines, and move rare
-or expensive paths into `references/`.
+they answer what outcome the skill produces, when an agent uses it, and how the agent validates success. Leave out When to use in a skill with
+`disable-model-invocation: true`, which runs only when the user picked it. Validation and Common pitfalls hold only what no rule, step or script
+already says; leave a section out rather than repeat. Keep the body under 500 lines, and move rare or expensive paths into `references/`.
 
 Activation:
 
@@ -65,6 +67,8 @@ Activation:
   messages and artifact names.
 - Separate sibling skills on the real difference between them, not their shared topic, and add the matching `DO NOT USE FOR:` clause to both.
 - Re-read every `DO NOT USE FOR:` clause against the requests the skill exists for. An exclusion can lock out the skill's own purpose.
+- In a skill with `disable-model-invocation: true`, say what it does and how to invoke it, without `USE FOR:` phrases. Claude Code doesn't load
+  its description at all, and on a host that ignores the field, trigger phrases load a skill whose body then tells the agent not to run it.
 
 Content:
 
@@ -72,8 +76,11 @@ Content:
 - Prefer "when A, do B, never C, verify D" rules over lists of plausible alternatives, and end with a concrete result: the exact command, the verdict
   line, the findings table.
 - Scale the output to the input. A twelve-section report for a small change is worse than a short direct answer.
-- Discover repo facts, such as paths, build commands and conventions, instead of requiring them as inputs. A repo corrects wrong guesses in a section
-  of its own agent instructions, e.g. `## Renovate` in its `AGENTS.md`.
+- Discover repo facts, such as paths, build commands and conventions, instead of requiring them as inputs. Where a repo needs to correct a
+  wrong guess, the skill reads a small config file of its own, e.g. `.github/renovate-sweep.conf`, never a section of the repo's agent
+  instructions: every key is optional, a missing key means its default, and a script checks the file. Add a key only once a real run needed it.
+- Keep a skill's runtime dependencies to what its users already have: for a GitHub skill, bash, `git` and `gh`. Read JSON with `gh`'s `--jq`
+  rather than requiring `jq`, and print plain text for the model.
 - Report validation truthfully. Claiming success after a failed step is the worst possible outcome.
 - Add stop conditions, so the skill doesn't over-apply. Then check that it doesn't now do less than the model would without it.
 - Where a host feature matters, say what to do without it, e.g. "one subagent per PR if your host supports it, otherwise one PR at a time".
@@ -108,7 +115,8 @@ users on their cached copy until it does. Work in progress stays on a branch, be
 Run `npm ci` once to install the linters. Claude Code runs it at session start, and a hook lints every file it edits. Before committing, run
 `npm run check`, the same command as the PR check. `npm run fix` applies markdownlint's fixes and formats shell scripts with shfmt.
 
-Besides Node 22 or later, the checks need `gh` 2.90 or later and `claude`.
+Besides Node 22 or later, the checks need `gh` 2.90 or later, `claude`, and bash for the config fixtures. On Windows, they take Git Bash's
+`bash.exe` from next to `git`, because the `bash` on the PATH is often WSL's.
 
 ## Pull requests
 

@@ -1,0 +1,3 @@
+invalid config: scripts/fixtures/renovate-sweep-config/invalid/syntax.conf
+bad config line 1 in file scripts/fixtures/renovate-sweep-config/invalid/syntax.conf
+references/config.md of the renovate-sweep skill describes every key.

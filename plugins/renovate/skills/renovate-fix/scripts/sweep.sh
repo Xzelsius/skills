@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
-# Runs one of the read-only scripts of the sibling skill renovate-sweep.
+# Runs one of the scripts of the sibling skill renovate-sweep that never write to GitHub.
 #
-# Usage: sweep.sh renovate-prs|ci-errors|worktree [args ...]
+# Usage: sweep.sh renovate-prs|ci-errors|worktree|config [args ...]
 #
 # renovate-fix has no scripts of its own. Going through this file keeps its commands free of "..", so that the
 # commands its allowed-tools pre-approve match, and it refuses the scripts that write to GitHub.
@@ -17,7 +17,7 @@ dir="$(cd "$(dirname "$0")/../../renovate-sweep/scripts" 2>/dev/null && pwd)" ||
 }
 
 case "${1:-}" in
-  renovate-prs | ci-errors | worktree) ;;
+  renovate-prs | ci-errors | worktree | config) ;;
   *)
     sed -n '2,8p' "$0"
     exit 2

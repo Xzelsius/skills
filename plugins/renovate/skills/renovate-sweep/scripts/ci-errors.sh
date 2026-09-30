@@ -1,8 +1,7 @@
 #!/usr/bin/env bash
-# Deduplicated errors of a PR's failing CI run(s).
+# Deduplicated errors of a PR's failing CI runs.
 #
 # Usage: ci-errors.sh <pr-number>
-#        ci-errors.sh --run <run-id>
 #
 # The failing runs are found through the links of the PR's checks (`gh run list --branch` misses some Renovate
 # branches). The last line is one of:
@@ -14,19 +13,19 @@ set -euo pipefail
 # shellcheck source=lib.sh
 source "$(dirname "$0")/lib.sh"
 
+[ "$#" -eq 1 ] || {
+  sed -n '2,10p' "$0"
+  exit 2
+}
+
+# The failed and cancelled checks as "<link>\t<name>" lines.
+failing="$(gh pr checks "$1" --json bucket,name,link \
+  --jq '.[] | select(.bucket == "fail" or .bucket == "cancel") | "\(.link)\t\(.name)"')"
 runs=()
-external=""
-if [ "${1:-}" = "--run" ]; then
-  runs=("$2")
-else
-  checks="$(gh pr checks "$1" --json name,bucket,link)"
-  while IFS= read -r run; do
-    [ -n "$run" ] && runs+=("$run")
-  done < <(jq -r '.[] | select(.bucket == "fail" or .bucket == "cancel") | .link' <<<"$checks" \
-    | sed -nE 's#.*/actions/runs/([0-9]+)(/.*)?$#\1#p' | sort -u)
-  external="$(jq -r '.[] | select(.bucket == "fail" or .bucket == "cancel")
-    | select(.link | test("/actions/runs/[0-9]+") | not) | "\(.name) \(.link)"' <<<"$checks")"
-fi
+while IFS= read -r run; do
+  if [ -n "$run" ]; then runs+=("$run"); fi
+done < <(cut -f1 <<<"$failing" | sed -nE 's#.*/actions/runs/([0-9]+)(/.*)?$#\1#p' | sort -u)
+external="$(awk -F'\t' 'NF == 2 && $1 !~ /\/actions\/runs\/[0-9]+/ { print $2 " " $1 }' <<<"$failing")"
 
 if [ -n "$external" ]; then
   echo "-- failing checks outside GitHub Actions (can't be read or rerun from here):"

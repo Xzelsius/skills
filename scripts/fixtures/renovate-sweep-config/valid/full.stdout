@@ -1,0 +1,7 @@
+source=scripts/fixtures/renovate-sweep-config/valid/full.conf
+bot=my-renovate[bot]
+mergeMethod=squash
+verify=dotnet build; dotnet test
+dependency=Microsoft.Extensions.* consumerFacing=yes
+dependency=Microsoft.Extensions.Logging.Abstractions consumerFacing=no
+dependency=@types/* consumerFacing=no

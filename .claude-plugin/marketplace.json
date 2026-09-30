@@ -1,0 +1,17 @@
+{
+  "name": "xzelsius-skills",
+  "owner": {
+    "name": "Raphael Strotz",
+    "url": "https://github.com/Xzelsius"
+  },
+  "description": "Skills for my own workflows, packaged as plugins for Claude Code, VS Code and Codex.",
+  "plugins": [
+    {
+      "name": "renovate",
+      "source": "./plugins/renovate",
+      "description": "Skills for working with Renovate on GitHub.",
+      "category": "dependencies",
+      "tags": ["renovate", "github", "dependencies"]
+    }
+  ]
+}

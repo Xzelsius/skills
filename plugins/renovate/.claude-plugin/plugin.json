@@ -1,0 +1,14 @@
+{
+  "$schema": "https://agent-plugins.org/schemas/1.0.0/plugin.schema.json",
+  "name": "renovate",
+  "version": "0.1.0",
+  "description": "Skills for working with Renovate on GitHub.",
+  "author": {
+    "name": "Raphael Strotz",
+    "url": "https://github.com/Xzelsius"
+  },
+  "homepage": "https://github.com/Xzelsius/skills/tree/main/plugins/renovate",
+  "repository": "https://github.com/Xzelsius/skills",
+  "license": "MIT",
+  "keywords": ["renovate", "github", "dependencies", "pull-requests"]
+}

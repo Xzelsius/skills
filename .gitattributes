@@ -1,0 +1,8 @@
+#================================
+# Line endings
+#================================
+
+# Normalize all text files to LF in the repository *and* in the working tree.
+# The explicit `eol=lf` overrides each machine's `core.autocrlf`, so checkouts are
+# LF on every platform, Windows included. No native-ending conversion happens.
+* text=auto eol=lf

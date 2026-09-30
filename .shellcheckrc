@@ -1,0 +1,4 @@
+# Follow `source` statements, and resolve their paths from the sourcing script's folder, as in
+# `# shellcheck source=lib.sh` above `source "$(dirname "$0")/lib.sh"`.
+external-sources=true
+source-path=SCRIPTDIR

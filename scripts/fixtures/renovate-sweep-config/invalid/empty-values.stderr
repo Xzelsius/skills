@@ -1,0 +1,4 @@
+invalid config: scripts/fixtures/renovate-sweep-config/invalid/empty-values.conf
+sweep.bot: must not be empty
+sweep.verify: must not be empty
+references/config.md of the renovate-sweep skill describes every key.

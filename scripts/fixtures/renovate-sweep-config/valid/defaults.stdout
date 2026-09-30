@@ -1,0 +1,4 @@
+source=scripts/fixtures/renovate-sweep-config/valid/defaults.conf
+bot=renovate[bot]
+mergeMethod=
+verify=

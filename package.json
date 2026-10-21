@@ -14,6 +14,6 @@
     "@vscode-shellcheck/shellcheck-wasm": "0.1.1",
     "@wasm-fmt/shfmt": "0.2.7",
     "editorconfig": "3.0.2",
-    "markdownlint-cli2": "0.23.3"
+    "markdownlint-cli2": "0.24.0"
   }
 }
